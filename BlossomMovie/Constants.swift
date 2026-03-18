@@ -19,6 +19,17 @@ struct Constants {
     static let heroTestTitle3: String = "https://lumiere-a.akamaihd.net/v1/images/p_disneymovies_snowwhite2025_poster_v2_78c598d2.jpeg"
     
     static let heroTestTitle4: String = "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC,e-usm-2-2-0.5-0.008/et00478890-gseacbrsej-portrait.jpg"
+    
+    static let posterTitleURLStart: String = "https://image.tmdb.org/t/p/w500"
+    
+    func setPosterPath(to titles: inout[Title]){
+        for index in titles.indices {
+            if let path = titles[index].posterPath {
+                titles[index].posterPath = Constants.posterTitleURLStart + path
+            }
+        }
+    }
+    
 }
 
 extension Text {

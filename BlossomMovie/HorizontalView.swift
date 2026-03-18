@@ -10,15 +10,17 @@ import SwiftUI
 struct HorizontalView: View {
     
     let header: String
-    var titles = [Constants.heroTestTitle, Constants.heroTestTitle2, Constants.heroTestTitle3, Constants.heroTestTitle4]
+    var titles : [Title]
+    
+    let viewModel = ViewModal()
     
     var body: some View {
         VStack(alignment: .leading) {
             Text(header).font(.title)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    ForEach(titles, id: \.self) { title in
-                        AsyncImage(url: URL(string: title)){ image in
+                    ForEach(titles) { title in
+                        AsyncImage(url: URL(string: title.posterPath ?? "")){ image in
                             image.resizable().scaledToFit().clipShape(RoundedRectangle(cornerRadius: 12))
                         } placeholder: {
                             ProgressView()
@@ -31,5 +33,5 @@ struct HorizontalView: View {
 }
 
 #Preview {
-    HorizontalView(header: "Trending Movies")
+    HorizontalView(header: "Trending Movies", titles: Title.previewTitles)
 }
