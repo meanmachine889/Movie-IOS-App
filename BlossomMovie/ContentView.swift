@@ -22,6 +22,7 @@ struct ContentView: View {
             Tab(Constants.downloadString, systemImage: "arrow.down.to.line") {
                 Text(Constants.downloadString)
             }
+//            AIzaSyB37b0xlhTd8aobLHmRO6sAkZ54YwW3TcE
         }
         .onAppear() {
             if let config = APIConfig.shared {

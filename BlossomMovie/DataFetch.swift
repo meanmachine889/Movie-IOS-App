@@ -12,28 +12,48 @@ struct DataFetcher {
     
     let tmdbURL = APIConfig.shared?.tmdbBaseURL
     let tmdbAPI = APIConfig.shared?.tmdbAPIKey
+    let youtubeSearchURL = APIConfig.shared?.youtubeSearchURL
+    let youtubeAPIKey = APIConfig.shared?.youtubeAPIKey
     
-    
-    func fetchTitles(media : String) async throws -> [Title] {
-        guard let baseUrl = tmdbURL else {
-            throw NetworkError.missingConfig
-        }
+    func fetchTitles(media : String, type: String) async throws -> [Title] {
         
-        guard let apiKey = tmdbAPI else {
-            throw NetworkError.missingConfig
-        }
+        let fetchTitleURL = try buildUrl(for: media, of: type)
         
-        guard let fetchTitleURL = URL(string: baseUrl)?
-            .appending(path: "3/trending/\(media)/day")
-            .appending(queryItems: [
-                URLQueryItem(name: "api_key", value: apiKey)
-            ]) else {
+        guard let fetchTitleURL = fetchTitleURL else {
             throw NetworkError.urlBuildingFailed
         }
         
-        print(fetchTitleURL)
+        var titles = try await fetchAndDecode(url: fetchTitleURL, type: TMDBAPIObj.self).results
+        let constants = Constants()
+        constants.setPosterPath(to: &titles)
+        return titles
+    }
+    
+    func fetchVideoId(for title: String) async throws -> String {
+        guard let ytbaseurl = youtubeSearchURL else {
+            throw NetworkError.missingConfig
+        }
         
-        let (data, urlResponse) = try await URLSession.shared.data(from: fetchTitleURL)
+        guard let ytAPIKey = youtubeAPIKey else {
+            throw NetworkError.missingConfig
+        }
+        
+        let trailerSearch = title + YoutubeURLStrings.space.rawValue + YoutubeURLStrings.trailer.rawValue
+        
+        guard let fetchVideoURL = URL(string: ytbaseurl)?.appending(queryItems: [
+            URLQueryItem(name: YoutubeURLStrings.queryShorten.rawValue, value: trailerSearch),
+            URLQueryItem(name: YoutubeURLStrings.key.rawValue, value: ytAPIKey)
+        ]) else {
+            throw NetworkError.urlBuildingFailed
+        }
+        
+        print(fetchVideoURL)
+        
+        return try await fetchAndDecode(url: fetchVideoURL, type: YoutubeSearchResponse.self).items?.first?.id?.videoId ?? ""
+    }
+    
+    func fetchAndDecode<T: Decodable>(url: URL, type: T.Type) async throws -> T {
+        let (data, urlResponse) = try await URLSession.shared.data(from: url)
         
         guard let response = urlResponse as? HTTPURLResponse, response.statusCode == 200 else {
             throw NetworkError.badURLResponse(underlyingError : NSError(
@@ -45,10 +65,37 @@ struct DataFetcher {
         
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        var titles = try decoder.decode(APIObj.self, from: data).results
-        let constants = Constants()
-        constants.setPosterPath(to: &titles)
-        return titles
+        return try decoder.decode(type, from: data)
+    }
+    
+    func buildUrl(for media: String, of type: String) throws -> URL? {
+        guard let baseUrl = tmdbURL else {
+            throw NetworkError.missingConfig
+        }
+        
+        guard let apiKey = tmdbAPI else {
+            throw NetworkError.missingConfig
+        }
+        
+        var path: String = ""
+        
+        if type == "trending" {
+            path = "3/trending/\(media)/day"
+        } else if type == "top_rated" {
+            path = "3/\(media)/top_rated"
+        } else {
+            throw NetworkError.urlBuildingFailed
+        }
+        
+        guard let url = URL(string: baseUrl)?
+            .appending(path: path)
+            .appending(queryItems: [
+                URLQueryItem(name: "api_key", value: apiKey)
+            ]) else {
+            throw NetworkError.urlBuildingFailed
+        }
+        
+        return url
     }
 }
 

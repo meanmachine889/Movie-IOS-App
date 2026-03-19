@@ -11,6 +11,7 @@ struct HorizontalView: View {
     
     let header: String
     var titles : [Title]
+    var onSelect: (Title) -> Void
     
     let viewModel = ViewModal()
     
@@ -20,11 +21,14 @@ struct HorizontalView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(titles) { title in
-                        AsyncImage(url: URL(string: title.posterPath ?? "")){ image in
+                        AsyncImage(url: URL(string: title.posterPath ?? title.backdrop_path ?? "")){ image in
                             image.resizable().scaledToFit().clipShape(RoundedRectangle(cornerRadius: 12))
                         } placeholder: {
                             ProgressView()
                         }.frame(width: 130, height: 230)
+                            .onTapGesture {
+                                onSelect(title)
+                            }
                     }
                 }
             }
@@ -33,5 +37,7 @@ struct HorizontalView: View {
 }
 
 #Preview {
-    HorizontalView(header: "Trending Movies", titles: Title.previewTitles)
+    HorizontalView(header: "Trending Movies", titles: Title.previewTitles){
+        title in
+    }
 }
