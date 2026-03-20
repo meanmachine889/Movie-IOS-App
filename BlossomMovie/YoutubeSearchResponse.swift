@@ -17,4 +17,7 @@ struct ItemProperties: Codable {
 
 struct IdProperties: Codable {
     let videoId: String?
+    enum CodingKeys: String, CodingKey {
+        case videoId = "videoId"
+    }
 }

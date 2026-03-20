@@ -14,7 +14,7 @@ struct ContentView: View {
                 HomeView()
             }
             Tab(Constants.upcomingString, systemImage: "play.circle"){
-                Text(Constants.upcomingString)
+                UpcomingView()
             }
             Tab(Constants.searchString, systemImage: "magnifyingglass") {
                 Text(Constants.searchString)
@@ -22,7 +22,6 @@ struct ContentView: View {
             Tab(Constants.downloadString, systemImage: "arrow.down.to.line") {
                 Text(Constants.downloadString)
             }
-//            AIzaSyB37b0xlhTd8aobLHmRO6sAkZ54YwW3TcE
         }
         .onAppear() {
             if let config = APIConfig.shared {

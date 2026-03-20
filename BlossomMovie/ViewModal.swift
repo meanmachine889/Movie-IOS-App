@@ -18,13 +18,18 @@ class ViewModal {
     }
     
     private(set) var homeStatus : fetchStatus = .notStarted
+    private(set) var videoIdStatus: fetchStatus = .notStarted
+    private(set) var upcomingStatus: fetchStatus = .notStarted
     
     private var dataFetcher = DataFetcher()
     var trendingMovies : [Title] = []
     var topRatedMovies : [Title] = []
     var topRatedTV : [Title] = []
     var trendingTV : [Title] = []
+    var upcomingMovies : [Title] = []
+    var upcomingShows : [Title] = []
     var heroTitle : Title = Title.previewTitles[0]
+    var videoId : String = ""
     
     func fetchTitles() async {
         self.homeStatus = .loading
@@ -53,6 +58,30 @@ class ViewModal {
             }
         } else {
             self.homeStatus = .success 
+        }
+    }
+    
+    func fetchVideoId(for title: String) async {
+        videoIdStatus = .loading
+        
+        do {
+            videoId = try await dataFetcher.fetchVideoId(for: title)
+            videoIdStatus = fetchStatus.success
+        } catch {
+            print(error)
+            videoIdStatus = fetchStatus.failure(underlyingError: error)
+        }
+    }
+    
+    func fetchUpcomingMovies() async {
+        upcomingStatus = .loading
+        
+        do {
+            upcomingMovies = try await dataFetcher.fetchTitles(media: "movie", type: "upcoming")
+            upcomingStatus = .success
+        } catch {
+            print(error)
+            upcomingStatus = .failure(underlyingError: error)
         }
     }
 }
