@@ -17,10 +17,10 @@ struct ContentView: View {
                 UpcomingView()
             }
             Tab(Constants.searchString, systemImage: "magnifyingglass") {
-                Text(Constants.searchString)
+                SearchView()
             }
             Tab(Constants.downloadString, systemImage: "arrow.down.to.line") {
-                Text(Constants.downloadString)
+                DownloadView()
             }
         }
         .onAppear() {

@@ -6,16 +6,18 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
     let viewModal = ViewModal()
     @State private var titleDetailPath = NavigationPath()
+    @Environment(\.modelContext) var modelContext
     
     var body: some View {
         NavigationStack(path: $titleDetailPath){
             GeometryReader { geo in
                 ScrollView(.vertical) {
-                    
+                        
                     switch viewModal.homeStatus {
                     case .loading:
                         ProgressView().frame(width: geo.size.width, height: geo.size.height)
@@ -49,7 +51,8 @@ struct HomeView: View {
                                 }
                                 
                                 Button {
-                                    
+                                    modelContext.insert(viewModal.heroTitle)
+                                    try? modelContext.save()
                                 } label: {
                                     Text("Download").PrimaryButtonStyle()
                                 }

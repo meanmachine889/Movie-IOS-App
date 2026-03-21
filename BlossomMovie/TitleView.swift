@@ -7,11 +7,14 @@
 
 
 import SwiftUI
+import SwiftData
 
 struct TitleView : View {
     
     let title: Title
     var titleName: String { title.name ?? title.title ?? "" }
+    
+    @Environment(\.modelContext) var modelContext
     
     let viewModel = ViewModal()
     
@@ -32,12 +35,27 @@ struct TitleView : View {
                         YoutubePlayer(videoId: viewModel.videoId)
                             .frame(height: 350)
                         
-                        Text(titleName)
-                            .bold()
-                            .font(.title2)
-                            .padding(5)
-                        
-                        Text(title.overview ?? "").padding(5)
+                        VStack(alignment: .leading){
+                            Text(titleName)
+                                .bold()
+                                .font(.title2)
+                                .padding(5)
+                            
+                            Text(title.overview ?? "").padding(5)
+                            
+                            HStack{
+                                Spacer()
+                                Button {
+                                    let st = title
+                                    st.title = titleName
+                                    modelContext.insert(st)
+                                    try? modelContext.save()
+                                } label: {
+                                    Text("Download").PrimaryButtonStyle()
+                                }
+                                Spacer()
+                            }
+                        }.padding()
                     }
                 }
             case .failure(let underlyingError):
